@@ -99,6 +99,7 @@
 
 <script>
 import { ColorPicker } from 'vue-accessible-color-picker'
+import { Socket } from './socket';
 
 export default {
   name: 'App',
@@ -120,7 +121,7 @@ export default {
     }
   },
   mounted() {
-    this.ws = new WebSocket('ws://localhost:5000');
+    this.ws = new Socket();
     const ctx = document.getElementById("canvas").getContext('2d');
     this.ctx = ctx;
 
@@ -138,6 +139,7 @@ export default {
         });
       }
     }
+    this.ws.connect()
   },
   methods: {
     draw() {
@@ -162,12 +164,10 @@ export default {
       const color = this.status == "erase" ? "white" : this.color;
       const data = { action: "draw", data: { id, x, y, color } }
 
-      if (this.ws.readyState == WebSocket.OPEN) {
-        this.ws.send(JSON.stringify(data))
-      }
+      this.ws.send(JSON.stringify(data))
     },
     send() {
-      if (this.ws.readyState == WebSocket.OPEN && this.pseudo && this.message) {
+      if (this.pseudo && this.message) {
         this.ws.send(JSON.stringify({ action: "msg", data: { content: this.message, author: this.pseudo, type: 1 } }))
         this.message = ""
       }

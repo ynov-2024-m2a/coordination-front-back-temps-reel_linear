@@ -1,20 +1,28 @@
 const express = require('express');
 const http = require('http');
-require('dotenv').config();
 const webSocket = require('ws');
+const { DataHelper } = require('./DataHelper');
 
 
 const app = express()
 const server = http.createServer(app)
 const ws = new webSocket.Server({ server })
 
-ws.on('connection', socket => {
-    (async () => {
-        socket.send(JSON.stringify({ action: "init", data: {} }))
-    })();
+ws.on('connection', async (socket) => {
+    const pixels = await DataHelper.getPixels();
+    socket.send(JSON.stringify({ action: "init", data: pixels }))
 
-    socket.on('message', m => {
+    socket.on('message', async (m) => {
         const { action, data } = JSON.parse(m);
+
+        if (action === "draw") {
+            const pixel = await DataHelper.getPixel(data.x, data.y)
+            if (pixel) {
+                await DataHelper.setPixel(data.x, data.y, data.color)
+            } else {
+                await DataHelper.createPixel(data.x, data.y, data.color)
+            }
+        }
 
         if (["draw", "msg"].includes(action)) {
             ws.clients.forEach(client => {
@@ -22,13 +30,12 @@ ws.on('connection', socket => {
                     client.send(JSON.stringify({ action, data }))
             })
         }
-        if (action === "draw") {
 
-        }
         if (action === "join") {
             ws.clients.forEach(client => {
-                if (client.readyState == webSocket.OPEN)
+                if (client.readyState == webSocket.OPEN) {
                     client.send(JSON.stringify({ action: "msg", data: { author: data.pseudo, content: "viens de se connecter !", type: 2 } }))
+                }
             })
         }
     });

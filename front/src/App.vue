@@ -67,7 +67,7 @@
           </svg>
         </div>
         <ColorPicker :color="color" @color-change="(eventData) => this.color = eventData.cssColor" alpha-channel="hide"
-          :visible-formats="['rgb']" />
+          :visible-formats="['hex']" />
       </div>
     </div>
   </div>

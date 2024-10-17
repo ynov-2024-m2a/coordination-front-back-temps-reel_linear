@@ -8,16 +8,6 @@ const app = express()
 const server = http.createServer(app)
 const ws = new webSocket.Server({ server })
 
-mongoose.connect(process.env.CONNECT_STRING, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log("[+] Database connected");
-})
-    .catch((err) => {
-        console.error(`Error\n${err}`);
-    })
-
 ws.on('connection', socket => {
     (async () => {
         socket.send(JSON.stringify({ action: "init", data: {} }))

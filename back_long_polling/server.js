@@ -4,7 +4,12 @@ const app = express();
 app.use(cors());
 const PORT = 5000;
 
-app.get('/api/long-polling-endpoint', (req, res) => {
+let clients = [];
+
+app.get('/connection', (req, res) => {
+
+
+
     console.log('Client connecté pour long polling...');
     res.status(205).send();
 });

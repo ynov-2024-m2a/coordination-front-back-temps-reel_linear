@@ -1,0 +1,4 @@
+back/node_modules
+back/config.json
+back/.env
+front/node_modules

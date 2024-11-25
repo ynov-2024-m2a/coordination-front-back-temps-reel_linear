@@ -45,7 +45,6 @@ export default {
   },
   mounted() {
     this.ws = new Socket();
-
     this.ws.onmessage = (event) => {
       const { action, data } = JSON.parse(event.data)
       if (action == 'draw') {

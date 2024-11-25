@@ -4,16 +4,11 @@
     <div v-else class="main-layout">
       <TabComponent :tabs="tabs">
         <template #tab-0>
-          <CanvasComponent :ws="ws" :pixels="pixels" />
+          <CanvasComponent :ws="ws" :pixels="pixels" :messages="messages" :user="pseudo" />
         </template>
         <template #tab-1>
-          <ChatComponent :ws="ws" :messages="messages" :user="pseudo" />
         </template>
         <template #tab-2>
-          <div>
-            <h2>Statistiques</h2>
-            <p>Contenu des statistiques ici...</p>
-          </div>
         </template>
       </TabComponent>
     </div>
@@ -22,14 +17,13 @@
 
 <script>
 import CanvasComponent from './components/Canvas.vue';
-import ChatComponent from './components/Chat.vue';
 import ModalComponent from './components/Modal.vue';
 import TabComponent from './components/Tab.vue';
 import { Socket } from './socket';
 
 
 export default {
-  components: { CanvasComponent, ChatComponent, ModalComponent, TabComponent },
+  components: { CanvasComponent, ModalComponent, TabComponent },
   data() {
     return {
       ws: null,
@@ -37,9 +31,9 @@ export default {
       messages: [],
       pixels: [],
       tabs: [
-        { label: "Dessin" },
-        { label: "Chat" },
-        { label: "Statistiques" },
+        { label: "Websockets" },
+        { label: "Long polling" },
+        { label: "Mercure" },
       ],
     };
   },

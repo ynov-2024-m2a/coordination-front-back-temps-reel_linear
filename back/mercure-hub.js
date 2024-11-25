@@ -86,5 +86,5 @@ app.post('/publish', async (req, res) => {
 
 // Lancer le serveur
 app.listen(port, () => {
-    console.log('Hub Mercure personnalisé en écoute sur http://localhost:3000');
+    console.log(`Hub Mercure personnalisé en écoute sur http://localhost:${port}`);
 });

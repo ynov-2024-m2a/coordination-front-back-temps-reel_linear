@@ -44,9 +44,9 @@ export default {
     };
   },
   mounted() {
-    this.ws = new Socket();
+    this.ws = new Socket('longPolling');
     this.ws.onmessage = (event) => {
-      const { action, data } = JSON.parse(event.data)
+      const { action, data } = (event)
       if (action == 'draw') {
         this.pixels = [...this.pixels, data];
       } else if (action == "msg") {

@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors'); 
 const { DataHelper } = require('./DataHelper');
 const { default: axios } = require('axios');
+const port = 8083
 
 const app = express();
 expressWs(app);
@@ -22,7 +23,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 async function publishMessage(topic, data) {
-    await axios.post('http://localhost:3000/publish', JSON.stringify({
+    await axios.post(`http://localhost:${port}/publish`, JSON.stringify({
         topic: topic,
         data: data
     }), {headers: { 'Content-Type': 'application/json' }})
@@ -30,8 +31,6 @@ async function publishMessage(topic, data) {
 
 // Endpoint pour s'abonner à un topic (SSE)
 app.get('/sse', async (req, res) => {
-    console.log('ok');
-    
     const topic = req.query.topic;
 
     if (!topic) {
@@ -95,6 +94,6 @@ app.post('/publish', async (req, res) => {
 });
 
 // Lancer le serveur
-app.listen(3000, () => {
-    console.log('Hub Mercure personnalisé en écoute sur http://localhost:3000');
+app.listen(port, () => {
+    console.log(`Hub Mercure personnalisé en écoute sur http://localhost:${port}`);
 });

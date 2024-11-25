@@ -16,16 +16,18 @@
         @onModeChange="changeMode"
         @onColorChange="changeColor"
       />
+      <ChatComponent :ws="ws" :messages="messages" :user="pseudo" />
     </div>
   </div>
 </template>
 
 <script>
 import ButtonAction from './ButtonAction.vue';
+import ChatComponent from './Chat.vue';
 
 export default {
   name:"CanvasComponent",
-  components: { ButtonAction },
+  components: { ButtonAction, ChatComponent },
   props: {
     pixels: { type: Array, required: true },
     width: { type: Number, default: 1200 },

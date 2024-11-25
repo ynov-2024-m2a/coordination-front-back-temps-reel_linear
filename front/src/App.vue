@@ -21,10 +21,8 @@
 </template>
 
 <script>
-import CanvasComponent from './components/Canvas.vue';
-import ChatComponent from './components/Chat.vue';
-import ModalComponent from './components/Modal.vue';
-import TabComponent from './components/Tab.vue';
+import { ColorPicker } from 'vue-accessible-color-picker'
+import { Socket } from './socket';
 
 export default {
   components: { CanvasComponent, ChatComponent, ModalComponent, TabComponent },
@@ -32,12 +30,33 @@ export default {
     return {
       ws: null,
       pseudo: null,
-      tabs: [
-        { label: "Dessin" },
-        { label: "Chat" },
-        { label: "Statistiques" },
-      ],
-    };
+      temporaryPseudo: null,
+      status: "edit",
+      color: "#f80b",
+      pos: { x: null, y: null },
+      ctx: null
+    }
+  },
+  mounted() {
+    this.ws = new Socket();
+    const ctx = document.getElementById("canvas").getContext('2d');
+    this.ctx = ctx;
+
+    this.ws.onmessage = (event) => {
+      const { action, data } = JSON.parse(event.data)
+      if (action == 'draw') {
+        ctx.fillStyle = data.color;
+        ctx.fillRect(data.x, data.y, this.pixel, this.pixel);
+      } else if (action == "msg") {
+        this.messages.push(data)
+      } else if (action == "init") {
+        data.forEach(savePixel => {
+          ctx.fillStyle = savePixel.color;
+          ctx.fillRect(savePixel.x, savePixel.y, this.pixel, this.pixel);
+        });
+      }
+    }
+    this.ws.connect()
   },
   methods: {
     setPseudo(pseudo) {
@@ -65,8 +84,29 @@ export default {
 
     console.log("Serveur WebSocket démarré sur ws://localhost:5000");
 
+    this.ws.send(JSON.stringify(data))
   },
-};
+  send() {
+    if (this.pseudo && this.message) {
+      this.ws.send(JSON.stringify({ action: "msg", data: { content: this.message, author: this.pseudo, type: 1 } }))
+      this.message = ""
+    }
+  },
+  savePseudo() {
+    this.pseudo = this.temporaryPseudo
+
+    this.ws.send(JSON.stringify({ action: "join", data: { pseudo: this.pseudo } }))
+  },
+  setStatus(status) {
+    this.status = status
+  },
+  mouseMove(event) {
+    const rect = event.target.getBoundingClientRect();
+    this.pos.x = Math.floor((event.clientX - rect.left) / this.pixel) * this.pixel + 1
+    this.pos.y = Math.floor((event.clientY - rect.top) / this.pixel) * this.pixel + 1
+  }
+}
+
 </script>
 
 <style>

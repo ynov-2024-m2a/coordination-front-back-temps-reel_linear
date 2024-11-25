@@ -1,15 +1,14 @@
 const express = require('express');
 const http = require('http');
+const { DataHelper } = require('../back/DataHelper');
 const axios = require('axios'); 
 require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
 
-// URL du hub Mercure
 const MERCURE_HUB_URL = 'http://localhost:3000/.well-known/mercure';
 
-// Fonction pour publier un événement à Mercure
 const publishToMercure = async (topic, data) => {
 
     try {
@@ -27,8 +26,18 @@ const publishToMercure = async (topic, data) => {
 app.use(express.json());
 
 // Exemple d'un endpoint pour publier des messages
-app.post('/publish', (req, res) => {
+app.post('/publish', async (req, res) => {
     const { action, data } = req.body;
+
+    if (action === "draw") {
+        const pixel = await DataHelper.getPixel(data.x, data.y)
+        if (pixel) {
+            await DataHelper.setPixel(data.x, data.y, data.color)
+        } else {
+            await DataHelper.createPixel(data.x, data.y, data.color)
+        }
+    }
+
 
     if (["draw", "msg", "join"].includes(action)) {
         // Publie l'événement à tous les clients abonnés au topic

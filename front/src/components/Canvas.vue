@@ -16,7 +16,7 @@
         @onModeChange="changeMode"
         @onColorChange="changeColor"
       />
-      <ChatComponent :ws="ws" :messages="messages" :user="pseudo" />
+      <ChatComponent :ws="ws" :messages="messages" :user="user" />
     </div>
   </div>
 </template>
@@ -34,6 +34,8 @@ export default {
     height: { type: Number, default: 600 },
     pixelSize: { type: Number, default: 10 },
     ws: { type: Object, required: true },
+    messages: { type: Array, required: true },
+    user: { type: String, required: true },
   },
   data() {
     return {

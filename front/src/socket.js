@@ -28,11 +28,9 @@ class Socket {
                     })
 
                 setInterval(() => {
-                    console.log('envoie')
                     axios.post('http://localhost:8082/api/longpolling/update', {'lastModified': this.lastModified})
                         .then(res => {
                             if (res.status === 200) {
-                                console.log(res.data);
                                 this.lastModified = res.data.lastModified;
                                 this.onmessage(res.data);
                             }

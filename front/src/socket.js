@@ -26,7 +26,7 @@ class Socket {
         switch (this.webSocketType) {
             case 'websocket':
                 if (this.ws.readyState == WebSocket.OPEN) {
-                    this.ws.send(data)
+                    this.ws.send(JSON.stringify(data))
                 }
                 break;
         

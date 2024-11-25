@@ -34,7 +34,7 @@ export default {
       this.$emit('onModeChange', this.mode);
     },
     updateColor(event) {
-      this.$emit('onColorChange', event.cssColor);
+      this.$emit('onColorChange', event.colors.hex.slice(0, 7));
     },
   },
 };

@@ -2,15 +2,8 @@
   <div id="app" v-if="ws">
     <ModalComponent v-if="!pseudo" @savePseudo="setPseudo" />
     <div v-else class="main-layout">
-      <TabComponent :tabs="tabs">
-        <template #tab-0>
-          <CanvasComponent :ws="ws" :pixels="pixels" :messages="messages" :user="pseudo" />
-        </template>
-        <template #tab-1>
-        </template>
-        <template #tab-2>
-        </template>
-      </TabComponent>
+      <TabComponent :tabs="tabs" @changeTab="selectTab" />
+      <CanvasComponent :ws="ws" :pixels="pixels" :messages="messages" :user="pseudo" />
     </div>
   </div>
 </template>
@@ -28,33 +21,41 @@ export default {
     return {
       ws: null,
       pseudo: null,
+      technologie: 'websocket',
       messages: [],
       pixels: [],
       tabs: [
-        { label: "Websockets" },
-        { label: "Long polling" },
-        { label: "Mercure" },
+        { label: "Websockets", value: "websocket" },
+        { label: "Long polling", value: "longPolling" },
+        { label: "Mercure", value: "mercure" },
       ],
     };
   },
   mounted() {
-    this.ws = new Socket('longPolling');
-    this.ws.onmessage = (event) => {
-      const { action, data } = (event)
-      if (action == 'draw') {
-        this.pixels = [...this.pixels, data];
-      } else if (action == "msg") {
-        this.messages.push(data)
-      } else if (action == "init") {
-        this.pixels = data
-      }
-    }
-    this.ws.connect()
+    this.createWebsocket()
   },
   methods: {
+    createWebsocket () {
+      this.ws = new Socket(this.technologie);
+      this.ws.onmessage = (event) => {
+        const { action, data } = (event)
+        if (action == 'draw') {
+          this.pixels = [...this.pixels, data];
+        } else if (action == "msg") {
+          this.messages.push(data)
+        } else if (action == "init") {
+          this.pixels = data
+        }
+      }
+      this.ws.connect()
+    },
     setPseudo(pseudo) {
       this.pseudo = pseudo;
     },
+    selectTab(tab) {
+      this.technologie = tab
+      this.createWebsocket()
+    }
   }
 };
 </script>

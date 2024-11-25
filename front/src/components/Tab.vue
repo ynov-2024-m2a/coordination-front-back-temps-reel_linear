@@ -4,14 +4,11 @@
         <div
           v-for="(tab, index) in tabs"
           :key="index"
-          :class="['tab', { active: activeTab === index }]"
-          @click="selectTab(index)"
+          :class="['tab', { active: activeTab === tab.value }]"
+          @click="selectTab(tab.value)"
         >
           {{ tab.label }}
         </div>
-      </div>
-      <div class="tab-content">
-        <slot :name="`tab-${activeTab}`"></slot>
       </div>
     </div>
   </template>
@@ -21,7 +18,7 @@
     name:"TabComponent",
     data() {
       return {
-        activeTab: 0,
+        activeTab: this.tabs[0].value,
       };
     },
     props: {
@@ -31,8 +28,9 @@
       },
     },
     methods: {
-      selectTab(index) {
-        this.activeTab = index;
+      selectTab(val) {
+        this.activeTab = val;
+        this.$emit('change-tab', val)
       },
     },
   };

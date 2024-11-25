@@ -22,13 +22,13 @@
   export default {
     name:"ChatComponent",
     props: {
+      messages: { type: Array, required: true },
       ws: { type: Object, required: true },
       user: { type: String, required: true },
     },
     data() {
       return {
         newMessage: "",
-        messages: [],
       };
     },
     methods: {
@@ -36,22 +36,14 @@
         if (!this.newMessage.trim()) return;
   
         const message = { user: this.user, text: this.newMessage };
-        if (this.wsClient && this.wsClient.readyState === WebSocket.OPEN) {
-          this.ws.send(JSON.stringify({ action: "msg", data: message }));
+        if (this.ws) {
+          this.ws.send({ action: "msg", data: message });
         }
   
-        this.messages.push(message);
+        // this.messages.push(message);
         this.newMessage = "";
       },
-    },
-    mounted() {
-      this.wsClient.onmessage = (event) => {
-        const { action, data } = JSON.parse(event.data);
-        if (action === "msg") {
-          this.messages.push(data);
-        }
-      };
-    },
+    }
   };
   </script>
   
@@ -75,6 +67,7 @@
     margin-bottom: 5px;
   }
   .user {
+    margin-right: 5px;
     font-weight: bold;
   }
   .chat-input {

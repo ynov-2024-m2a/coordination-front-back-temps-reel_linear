@@ -1,13 +1,13 @@
 <template>
-  <div id="app">
+  <div id="app" v-if="ws">
     <ModalComponent v-if="!pseudo" @savePseudo="setPseudo" />
-    <div v-if="pseudo" class="main-layout">
+    <div v-else class="main-layout">
       <TabComponent :tabs="tabs">
         <template #tab-0>
-          <CanvasComponent :ws="ws" :pixelSize="10" />
+          <CanvasComponent :ws="ws" :pixels="pixels" />
         </template>
         <template #tab-1>
-          <ChatComponent :ws="ws" :user="pseudo" />
+          <ChatComponent :ws="ws" :messages="messages" :user="pseudo" />
         </template>
         <template #tab-2>
           <div>
@@ -21,8 +21,12 @@
 </template>
 
 <script>
-import { ColorPicker } from 'vue-accessible-color-picker'
+import CanvasComponent from './components/Canvas.vue';
+import ChatComponent from './components/Chat.vue';
+import ModalComponent from './components/Modal.vue';
+import TabComponent from './components/Tab.vue';
 import { Socket } from './socket';
+
 
 export default {
   components: { CanvasComponent, ChatComponent, ModalComponent, TabComponent },
@@ -30,30 +34,26 @@ export default {
     return {
       ws: null,
       pseudo: null,
-      temporaryPseudo: null,
-      status: "edit",
-      color: "#f80b",
-      pos: { x: null, y: null },
-      ctx: null
-    }
+      messages: [],
+      pixels: [],
+      tabs: [
+        { label: "Dessin" },
+        { label: "Chat" },
+        { label: "Statistiques" },
+      ],
+    };
   },
   mounted() {
     this.ws = new Socket();
-    const ctx = document.getElementById("canvas").getContext('2d');
-    this.ctx = ctx;
 
     this.ws.onmessage = (event) => {
       const { action, data } = JSON.parse(event.data)
       if (action == 'draw') {
-        ctx.fillStyle = data.color;
-        ctx.fillRect(data.x, data.y, this.pixel, this.pixel);
+        this.pixels = [...this.pixels, data];
       } else if (action == "msg") {
         this.messages.push(data)
       } else if (action == "init") {
-        data.forEach(savePixel => {
-          ctx.fillStyle = savePixel.color;
-          ctx.fillRect(savePixel.x, savePixel.y, this.pixel, this.pixel);
-        });
+        this.pixels = data
       }
     }
     this.ws.connect()
@@ -62,51 +62,8 @@ export default {
     setPseudo(pseudo) {
       this.pseudo = pseudo;
     },
-  },
-  mounted() {
-    this.ws = new WebSocket("ws://localhost:5000");
-
-    const WebSocket = require('ws');
-    const wss = new WebSocket.Server({ port: 5000 });
-
-    wss.on('connection', (ws) => {
-      ws.on('message', (message) => {
-        const data = JSON.parse(message);
-
-        // Broadcast à tous les clients
-        wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(data));
-          }
-        });
-      });
-    });
-
-    console.log("Serveur WebSocket démarré sur ws://localhost:5000");
-
-    this.ws.send(JSON.stringify(data))
-  },
-  send() {
-    if (this.pseudo && this.message) {
-      this.ws.send(JSON.stringify({ action: "msg", data: { content: this.message, author: this.pseudo, type: 1 } }))
-      this.message = ""
-    }
-  },
-  savePseudo() {
-    this.pseudo = this.temporaryPseudo
-
-    this.ws.send(JSON.stringify({ action: "join", data: { pseudo: this.pseudo } }))
-  },
-  setStatus(status) {
-    this.status = status
-  },
-  mouseMove(event) {
-    const rect = event.target.getBoundingClientRect();
-    this.pos.x = Math.floor((event.clientX - rect.left) / this.pixel) * this.pixel + 1
-    this.pos.y = Math.floor((event.clientY - rect.top) / this.pixel) * this.pixel + 1
   }
-}
-
+};
 </script>
 
 <style>

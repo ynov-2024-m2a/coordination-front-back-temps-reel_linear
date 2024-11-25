@@ -15,34 +15,24 @@
   
   <script>
   export default {
-    name:"ButtonComponent",
-    props: {
-      onModeChange: {
-        type: Function,
-        required: true, // Une fonction à appeler lors du changement de mode
-      },
-      onColorChange: {
-        type: Function,
-        required: true, // Une fonction à appeler lors du changement de couleur
-      },
-    },
+    name:"ButtonAction",
     data() {
       return {
-        mode: 'edit', // Modes possibles : 'edit', 'erase'
-        color: '#000000', // Couleur par défaut
+        mode: 'edit',
+        color: '#000000',
       };
     },
     methods: {
       setEditMode() {
         this.mode = 'edit';
-        this.onModeChange(this.mode); // Notifie le parent du changement de mode
+        this.$emit('onModeChange', this.mode);
       },
       setEraseMode() {
         this.mode = 'erase';
-        this.onModeChange(this.mode); // Notifie le parent du changement de mode
+        this.$emit('onModeChange', this.mode);
       },
       updateColor() {
-        this.onColorChange(this.color); // Notifie le parent de la couleur choisie
+        this.$emit('onColorChange', this.color);
       },
     },
   };

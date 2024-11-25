@@ -36,11 +36,9 @@ export default {
   },
   methods: {
     createWebsocket () {
-      console.log('pass');
-      
       this.ws = new Socket(this.technologie);
       this.ws.onmessage = (event) => {
-        const { action, data } = JSON.parse(event.data)
+        const { action, data } = (event)
         if (action == 'draw') {
           this.pixels = [...this.pixels, data];
         } else if (action == "msg") {

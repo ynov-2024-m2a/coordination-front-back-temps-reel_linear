@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors'); 
 const { DataHelper } = require('./DataHelper');
 const { default: axios } = require('axios');
+const port = 8083
 
 const app = express();
 expressWs(app);
@@ -20,7 +21,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 async function publishMessage(topic, data) {
-    await axios.post('http://localhost:3000/publish', JSON.stringify({
+    await axios.post(`http://localhost:${port}/publish`, JSON.stringify({
         topic: topic,
         data: data
     }), {headers: { 'Content-Type': 'application/json' }})
@@ -83,6 +84,7 @@ app.post('/publish', async (req, res) => {
     res.status(200).send('Message published');
 });
 
-app.listen(3000, () => {
-    console.log('Hub Mercure personnalisé en écoute sur http://localhost:3000');
+// Lancer le serveur
+app.listen(port, () => {
+    console.log(`Hub Mercure personnalisé en écoute sur http://localhost:${port}`);
 });

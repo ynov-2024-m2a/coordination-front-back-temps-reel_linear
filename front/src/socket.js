@@ -22,24 +22,6 @@ class Socket {
 
             case 'longPolling':
                 this.longPolling();
-
-                // Route à appeler à l'initialisation
-                // axios.get('http://localhost:8082/api/longpolling/init')
-                //     .then(res => {
-                //         this.onmessage(res.data);
-                //     })
-
-                // setInterval(() => {
-                //     axios.post('http://localhost:8082/api/longpolling/update',
-                //         {'lastModified': this.lastModified})
-                //         .then(res => {
-                //             if (res.status === 200) {
-                //                 this.lastModified = res.data.lastModified;
-                //                 this.onmessage(res.data);
-                //             }
-                //         })
-                // }, 500);
-
                 break;
 
             case 'mercure':

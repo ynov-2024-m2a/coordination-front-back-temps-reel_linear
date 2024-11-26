@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(cors());
 let idLastModified;
+let hasModify = false;
 
 app.get('/api/longpolling/init', async (req, res) => {
     // Récupérations des pixels en base
@@ -16,20 +17,26 @@ app.get('/api/longpolling/init', async (req, res) => {
 app.use(bodyParser.json());
 
 app.post('/api/longpolling/setpixel', async (req, res) => {
-    const {x, y, color} = req.body.data;
 
-    const pixel = await DataHelper.getPixel(x, y);
-
-    // Créer ou mettre à jour le pixel
-    if (pixel) {
-        await DataHelper.setPixel(x, y, color);
-        idLastModified = pixel.id;
+    if (!req.body.data.x || !req.body.data.y || !req.body.data.color) {
+        res.status(400);
     } else {
-        const pixelId = await DataHelper.createPixel(x, y, color);
-        idLastModified = pixelId;
-    }
+        const {x, y, color} = req.body.data;
 
-    res.status(200).send({idLastModified: idLastModified});
+        const pixel = await DataHelper.getPixel(x, y);
+
+        // Créer ou mettre à jour le pixel
+        if (pixel) {
+            await DataHelper.setPixel(x, y, color);
+            idLastModified = pixel.id;
+        } else {
+            idLastModified = await DataHelper.createPixel(x, y, color);
+        }
+
+        hasModify = true;
+
+        res.status(200).send({idLastModified: idLastModified});
+    }
 });
 
 /**
@@ -41,10 +48,11 @@ app.post('/api/longpolling/update', async (req, res) => {
     idLastModified = await DataHelper.getLastPixel();
 
     intervalId = setInterval(async () => {
-        if (lastModified !== idLastModified || lastModified === null) {
+        if (lastModified !== idLastModified || lastModified === null || hasModify) {
             const pixels = await DataHelper.getPixels();
             res.send({action: 'init', data: pixels, lastModified: idLastModified});
             clearInterval(intervalId);
+            hasModify = false;
         }
     }, 500);
 });

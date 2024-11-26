@@ -1,4 +1,4 @@
-const { default: axios } = require('axios');
+const {default: axios} = require('axios');
 
 class Socket {
     constructor(webSocketType = 'websocket') {
@@ -21,21 +21,24 @@ class Socket {
                 break;
 
             case 'longPolling':
-                // Route à appeler à l'initialisation
-                axios.get('http://localhost:8082/api/longpolling/init')
-                    .then(res => {
-                        this.onmessage(res.data);
-                    })
+                this.longPolling();
 
-                setInterval(() => {
-                    axios.post('http://localhost:8082/api/longpolling/update', {'lastModified': this.lastModified})
-                        .then(res => {
-                            if (res.status === 200) {
-                                this.lastModified = res.data.lastModified;
-                                this.onmessage(res.data);
-                            }
-                        })
-                }, 500);
+                // Route à appeler à l'initialisation
+                // axios.get('http://localhost:8082/api/longpolling/init')
+                //     .then(res => {
+                //         this.onmessage(res.data);
+                //     })
+
+                // setInterval(() => {
+                //     axios.post('http://localhost:8082/api/longpolling/update',
+                //         {'lastModified': this.lastModified})
+                //         .then(res => {
+                //             if (res.status === 200) {
+                //                 this.lastModified = res.data.lastModified;
+                //                 this.onmessage(res.data);
+                //             }
+                //         })
+                // }, 500);
 
                 break;
 
@@ -81,6 +84,15 @@ class Socket {
                 });
                 break;
         }
+    }
+
+    longPolling() {
+        axios.post('http://localhost:8082/api/longpolling/update',
+            { lastModified: this.lastModified })
+            .then(res => {
+                this.onmessage(res.data);
+                this.longPolling();
+            })
     }
 }
 

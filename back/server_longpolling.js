@@ -37,16 +37,18 @@ app.post('/api/longpolling/setpixel', async (req, res) => {
  */
 app.post('/api/longpolling/update', async (req, res) => {
     const lastModified = req.body.lastModified;
+    let intervalId;
+    idLastModified = await DataHelper.getLastPixel();
 
-    // Renvoyer les données si le dernier id modifié est différent de celui stocké
-    if (lastModified === null || lastModified === idLastModified)
-    {
-        res.status(204).end();
-    } else {
-        const pixels = await DataHelper.getPixels();
-        res.send({action: 'init', data: pixels, lastModified: lastModified});
-    }
+    intervalId = setInterval(async () => {
+        if (lastModified !== idLastModified || lastModified === null) {
+            const pixels = await DataHelper.getPixels();
+            res.send({action: 'init', data: pixels, lastModified: idLastModified});
+            clearInterval(intervalId);
+        }
+    }, 500);
 });
+
 
 const PORT = 8082;
 app.listen(PORT, () => {

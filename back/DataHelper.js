@@ -15,6 +15,10 @@ class DataHelper {
         return await DataHelper.query('SELECT * FROM pixels');
     }
 
+    static async getLastPixel() {
+        return (await DataHelper.query('SELECT max(id) as max_id FROM pixels'))[0].max_id;
+    }
+
     static async getPixel(x, y) {
         const pixel = await DataHelper.query(`SELECT * FROM pixels where y=${y} and x=${x}`);
         if (pixel.length) {

@@ -23,14 +23,12 @@ class DataHelper {
     }
     
     static async setPixel(x, y, color) {
-        const pixel = await DataHelper.query(`update pixels set color='${color}' where y=${y} and x=${x}`);
-        if (pixel.length) {
-            return pixel[0];
-        }
+        await DataHelper.query(`update pixels set color='${color}' where y=${y} and x=${x}`);
     }
     
     static async createPixel(x, y, color) {
         await DataHelper.query(`insert into pixels (x, y, color) values (${x}, ${y}, '${color}')`);
+        return (await this.getPixel(x, y)).id;
     }
     
     static async getMessages() {

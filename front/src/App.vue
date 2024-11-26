@@ -45,6 +45,7 @@ export default {
           this.messages.push(data)
         } else if (action == "init") {
           this.pixels = data
+          console.log('les données sont:', data)
         }
       }
       this.ws.connect()

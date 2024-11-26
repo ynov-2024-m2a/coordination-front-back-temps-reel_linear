@@ -4,7 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const app = express();
 app.use(cors());
-let idLastModified;
+let lastModified = null;
 let hasModify = false;
 
 app.get('/api/longpolling/init', async (req, res) => {
@@ -28,14 +28,14 @@ app.post('/api/longpolling/setpixel', async (req, res) => {
         // Créer ou mettre à jour le pixel
         if (pixel) {
             await DataHelper.setPixel(x, y, color);
-            idLastModified = pixel.id;
+            lastModified = await createlastModified({id: pixel.id, color: color});
         } else {
-            idLastModified = await DataHelper.createPixel(x, y, color);
+            lastModified = await createlastModified({id: await DataHelper.createPixel(x, y, color), color: color});
         }
 
         hasModify = true;
 
-        res.status(200).send({idLastModified: idLastModified});
+        res.status(200).end();
     }
 });
 
@@ -43,19 +43,26 @@ app.post('/api/longpolling/setpixel', async (req, res) => {
  * Route de vérification des modifications long-polling
  */
 app.post('/api/longpolling/update', async (req, res) => {
-    const lastModified = req.body.lastModified;
-    let intervalId;
-    idLastModified = await DataHelper.getLastPixel();
+    const lastModifiedGetted = req.body.lastModified;
+    lastModified = lastModified !== null ? lastModified : await createlastModified();
 
-    intervalId = setInterval(async () => {
-        if (lastModified !== idLastModified || lastModified === null || hasModify) {
+    let intervalId = setInterval(async () => {
+
+        if (lastModifiedGetted !== lastModified || hasModify) {
             const pixels = await DataHelper.getPixels();
-            res.send({action: 'init', data: pixels, lastModified: idLastModified});
+            res.send({action: 'init', data: pixels, lastModified: lastModified});
+
             clearInterval(intervalId);
             hasModify = false;
         }
     }, 500);
 });
+
+async function createlastModified(pixel = null) {
+    const pixelInfo = pixel === null ? await DataHelper.getLastPixel() : pixel;
+
+    return `${pixelInfo.id}${pixelInfo.color}`
+}
 
 
 const PORT = 8082;

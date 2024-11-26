@@ -16,7 +16,7 @@ class DataHelper {
     }
 
     static async getLastPixel() {
-        return (await DataHelper.query('SELECT max(id) as max_id FROM pixels'))[0].max_id;
+        return (await DataHelper.query('SELECT color, max(id) as id FROM pixels'))[0];
     }
 
     static async getPixel(x, y) {

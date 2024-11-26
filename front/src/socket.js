@@ -50,7 +50,6 @@ class Socket {
             case 'longPolling':
                 axios.post('http://localhost:8082/api/longpolling/setpixel', data)
                     .then(res => {
-                        this.lastModified = res.data.idLastModified;
                         this.onmessage(res.data);
                     })
                 break;
@@ -72,6 +71,9 @@ class Socket {
         axios.post('http://localhost:8082/api/longpolling/update',
             { lastModified: this.lastModified })
             .then(res => {
+                this.lastModified = res.data.lastModified;
+                console.log(res.data.lastModified, this.lastModified)
+                console.log(res.data)
                 this.onmessage(res.data);
                 this.longPolling();
             })

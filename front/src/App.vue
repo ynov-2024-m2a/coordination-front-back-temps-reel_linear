@@ -44,8 +44,10 @@ export default {
     };
   },
   mounted() {
-    this.ws = new Socket();
+    this.ws = new Socket ('mercure');
     this.ws.onmessage = (event) => {
+      console.log(event);
+      
       const { action, data } = JSON.parse(event.data)
       if (action == 'draw') {
         this.pixels = [...this.pixels, data];

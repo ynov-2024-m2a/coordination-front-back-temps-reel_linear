@@ -1,0 +1,25 @@
+{
+  "name": "pixel_war",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "trap 'kill 0' SIGINT; node server.js & node server_longpolling.js & node mercure-hub.js & wait",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.21.1",
+    "express-ws": "^5.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql": "^2.18.1",
+    "node-fetch": "^3.3.2",
+    "ws": "^8.14.2"
+  }
+}
